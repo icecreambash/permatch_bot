@@ -61,12 +61,14 @@ func main() {
 			switch update.Message.Text {
 			case "Мое расписание":
 				go query.Group(bot, update)
+			case "Расписание на сегодня":
+				go query.GetScheduleByIndex(bot, update)
 			}
 
 		}
 
 		if update.CallbackQuery != nil {
-			callback := tgbotapi.NewCallback(update.CallbackQuery.ID, "Вы добавили группу")
+			callback := tgbotapi.NewCallback(update.CallbackQuery.ID, "")
 			_, err2 := bot.Request(callback)
 			if err2 != nil {
 				return
@@ -77,7 +79,7 @@ func main() {
 
 			switch prepareData[0] {
 			case "get_schedule":
-				go query.SchemeT(bot, update, prepareData[1])
+				go query.SchemeT(bot, update, prepareData[1], update.CallbackQuery.Message.Chat.ID)
 				break
 			case "set_group":
 				go query.SetGroup(bot, update)

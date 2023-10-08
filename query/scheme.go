@@ -10,10 +10,10 @@ import (
 )
 
 const htmlTemplate = `
-	<b>{{.FullCode}}</b>
+	<b>{{.FullCode}} {{if .IsGreen}} | Зеленая неделя &#9989;{{else}} | Белая неделя &#11093; {{end}}</b>
 `
 
-func SchemeT(bot *tgbotapi.BotAPI, update tgbotapi.Update, id string) {
+func SchemeT(bot *tgbotapi.BotAPI, update tgbotapi.Update, id string, chatID int64) {
 
 	for _, element := range utils.TimeSchedule {
 		if element.Code == id {
@@ -43,17 +43,21 @@ func SchemeT(bot *tgbotapi.BotAPI, update tgbotapi.Update, id string) {
 			}
 
 			var tpl bytes.Buffer
-			webpage.Execute(&tpl, element)
+
+			err := webpage.Execute(&tpl, element)
+			if err != nil {
+				return
+			}
 
 			result := tpl.String()
 
-			msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, result)
+			msg := tgbotapi.NewMessage(chatID, result)
 
 			msg.ParseMode = tgbotapi.ModeHTML
 
 			msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(rows...)
 
-			_, err := bot.Send(msg)
+			_, err = bot.Send(msg)
 			if err != nil {
 				return
 			}
