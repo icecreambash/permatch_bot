@@ -4,6 +4,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
 	"log"
+	"lwjal/master/connector"
 	"lwjal/master/query"
 	"os"
 	"strings"
@@ -52,6 +53,8 @@ func main() {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 				msg.Text = "Здравствуйте, выберите группу в которой вы обучаетесь"
 				msg.ReplyMarkup = numericKeyboard
+
+				connector.Group()
 				_, err := bot.Send(msg)
 				if err != nil {
 					return
