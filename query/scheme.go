@@ -7,16 +7,29 @@ import (
 	"html/template"
 	"lwjal/master/utils"
 	"os"
+	"time"
 )
 
 const htmlTemplate = `
-	<b>{{.FullCode}} {{if .IsGreen}} | Зеленая неделя &#9989;{{else}} | Белая неделя &#11093; {{end}}</b>
+	<b>{{.FullCode}} {{if .IsGreen}} | Зеленая неделя &#9989;{{else}} | Белая неделя &#128064; {{end}}</b>
 `
+
+func IsGreen() bool {
+	_, date := time.Now().ISOWeek()
+
+	if date%2 == 0 {
+		fmt.Println("Зеленая")
+		return true
+	} else {
+		fmt.Println("Белая")
+		return false
+	}
+}
 
 func SchemeT(bot *tgbotapi.BotAPI, update tgbotapi.Update, id string, chatID int64) {
 
 	for _, element := range utils.TimeSchedule {
-		if element.Code == id {
+		if element.Code == id && element.IsGreen == IsGreen() {
 			webpage, _ := template.New("template").Parse(htmlTemplate)
 
 			var _ = webpage.Execute(os.Stdout, element)
@@ -27,8 +40,6 @@ func SchemeT(bot *tgbotapi.BotAPI, update tgbotapi.Update, id string, chatID int
 			var rows [][]tgbotapi.InlineKeyboardButton
 
 			for _, item := range element.Items {
-				fmt.Println(item)
-
 				item := [][]tgbotapi.InlineKeyboardButton{
 					tgbotapi.NewInlineKeyboardRow(
 						tgbotapi.NewInlineKeyboardButtonData(item.Name, "test"),
